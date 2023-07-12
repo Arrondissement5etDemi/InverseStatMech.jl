@@ -61,7 +61,7 @@ mutable struct Box
             central_inds = Int.(ceil.(pj/cell_length))
             surrounding_ind = Int(ceil(this.range/cell_length))
             result = []
-            for i in product(ntuple(i -> -surrounding_ind:surrounding_ind, this.dim())...)
+            for i in IterTools.product(ntuple(i -> -surrounding_ind:surrounding_ind, this.dim())...)
                 current_cell_ind = mod.(central_inds + collect(i) .- 1, this.n_cells_per_side) .+ 1
                 current_neighbors = this.cell_list[current_cell_ind...]
                 result = vcat(result, current_neighbors)
@@ -71,7 +71,7 @@ mutable struct Box
         
         this.rdf_j = function(j) 
             pj = this.particles[:, j]
-            r_vec = 0.5*this.bin_size:this.range
+            r_vec = this.bin_size/2:this.bin_size:this.range
             g2_vec = zeros(length(r_vec))
             all_neighbors = 1:this.n()#this.neighbors_j(j)
             ```now run the computing of dist_pbc in parallel```
@@ -107,7 +107,7 @@ mutable struct Box
             for neighbor in all_neighbors
                 if neighbor ≠ j 
                     if iso #isotropic potential
-                        dist = abs(pj[1] - this.particles[:, neighbor][1])#dist_pbc(pj, this.particles[:, neighbor], this.l)
+                        dist = dist_pbc(pj, this.particles[:, neighbor], this.l)
                         result += pair_pot(dist)
                     else #anisotropic potential
                         rij_vec = min_symm.(abs.(pj - this.particles[:, neighbor]), this.l)
@@ -188,7 +188,7 @@ function equilibrate!(b::Box, pair_pot, pot_params, use_cl = true, large_r_grid 
         if iso
             pot_grid = [pair_pot(r, pot_params) for r in r_vec]
         else
-            small_r_grid = [pair_pot(norm(collect(r)), pot_params) for r in product(ntuple(i -> r_vec, b.dim())...)]
+            small_r_grid = [pair_pot(norm(collect(r)), pot_params) for r in IterTools.product(ntuple(i -> r_vec, b.dim())...)]
             pot_grid = large_r_grid + small_r_grid
         end
         pair_pot_faster = make_faster(b.bin_size, pot_grid)

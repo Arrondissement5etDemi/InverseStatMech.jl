@@ -1,7 +1,4 @@
-using LinearAlgebra
-using Optim
-using BenchmarkTools
-using SpecialFunctions
+using LinearAlgebra, Optim, BenchmarkTools, SpecialFunctions
 
 min_symm(x, l) = min(x, l - x)
 dist_pbc(parti1, parti2, l) = norm(min_symm.(abs.(parti1 - parti2), l)) #assumes square box
@@ -71,7 +68,7 @@ function struc_fac(particles, l, range, bin_size = 0.05)
     dim, n = size(particles)
     n_range = ceil(Int, range/k_min)
     raw = zeros(0, 2)
-    for i in product(ntuple(i -> -n_range:n_range, dim)...)
+    for i in Iterators.product(ntuple(i -> -n_range:n_range, dim)...)
         n_tilde = 0
         k_vec = collect(i)*k_min
         if k_vec ≠ zeros(dim) && k_vec[1] ≥ 0 && norm(k_vec) ≤ range
@@ -107,7 +104,7 @@ function magnetic_struc_fac(particles, l, range, bin_size = 0.05)
     dim, n = size(particles)
     n_range = ceil(Int, range/k_min)
     raw = zeros(0, 2)
-    for i in product(ntuple(i -> -n_range:n_range, dim)...)
+    for i in Iterators.product(ntuple(i -> -n_range:n_range, dim)...)
         n_tilde = 0
         k_vec = collect(i)*k_min
         if k_vec ≠ zeros(dim) && k_vec[1] ≥ 0 && norm(k_vec) ≤ range
