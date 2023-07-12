@@ -259,10 +259,10 @@ end
 
 ```simulate g2```
 function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_grid, box_arr = missing; 
-        n_boxes = 20, configs_per_box = 5, show_pb)
-    config_arr = Vector{Box}(undef, n_boxes*configs_per_box)
+        n_threads = 20, configs_per_box = 5, show_pb)
+    config_arr = Vector{Box}(undef, n_threads*configs_per_box)
     if ismissing(box_arr)
-        box_arr = Vector{Box}(undef, n_boxes)
+        box_arr = Vector{Box}(undef, n_threads)
         b = random_box(dim, n, ρ, bin_size, range)
         pair_pot_faster = equilibrate!(b, pair_pot, pot_params, false, large_r_grid; sweeps = 600, show_pb = show_pb) #initial equilibration
         for i in eachindex(box_arr)
@@ -272,8 +272,8 @@ function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_g
         pair_pot_faster = equilibrate!(box_arr[1], pair_pot, pot_params, false, large_r_grid; sweeps = 1, show_pb = show_pb)
     end
     if show_pb
-        p = Progress(n_boxes*configs_per_box)
-        @sync for i in 1:n_boxes
+        p = Progress(n_threads*configs_per_box)
+        @sync for i in 1:n_threads
             Threads.@spawn for j = 1:configs_per_box
                 equilibrate!(box_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; sweeps = 50)
                 config_arr[(i - 1)*configs_per_box + j] = deepcopy(box_arr[i])
@@ -283,7 +283,7 @@ function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_g
         end
         finish!(p)
     else
-        @sync for i in 1:n_boxes
+        @sync for i in 1:n_threads
             Threads.@spawn for j = 1:configs_per_box
                 equilibrate!(box_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; sweeps = 50)
                 config_arr[(i - 1)*configs_per_box + j] = deepcopy(box_arr[i])
