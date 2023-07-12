@@ -1,8 +1,34 @@
 using ForwardDiff
 include("box.jl")
 
-function optimize(my_params; pot, large_r_grid = missing, dim, n, ρ, bin_size, r_range, k_range, targ_g2, g2_weight_range, targ_s, s_weight_range, 
-        n_boxes, configs_per_box, Ψ_tol, show_pb, test = false)
+"""
+    optim_parametrized_pot(my_params; <keyword arguments>)
+
+Optimize the parameters of a parametrized potential, starting with the initial guesses my_params
+
+# Arguments
+
+- `pot`: the functional form of the potential
+- `large_r_grid = missing`: ewald summation to treat very long-ranged interactions
+- `dim`: dimension of the system
+- `n`: number of particles
+- `ρ`: number density
+- `bin_size`: bin size for the pair correlation function g_2
+- `r_range`: the range of r in direct space to compute the pair correlation function g_2(r)
+- `k_range`: the range of k in fourier space to compute the structure factor S(k)
+- `targ_g2`: target pair correlation function
+- `g2_weight_range`: range parameter of the weight function for g_2: w_g2(r) = exp(-(r/g2_weight_range)^2)
+- `targ_s`: target structure factor
+- `s_weight_range`: range parametrer of the weight function for S: w_s(k) = exp(-(k/g2_weight_range)^2)
+- `n_threads`: number of threads used for parallel computation of the simulation
+- `configs_per_box`: number of configurations to generate in each thread
+- `Ψ_tol`: stopping criterion for the error functional Ψ (distance between target and optimized pair statistics)
+- `show_pb = true`: show progress bar
+- `test = false`: whether we are testing the package
+"""
+function optim_parametrized_pot(my_params; 
+        pot, large_r_grid = missing, dim, n, ρ, bin_size, r_range, k_range, targ_g2, g2_weight_range, targ_s, s_weight_range, 
+        n_threads, configs_per_box, Ψ_tol, show_pb = true, test = false)
     f_g2(b) = b.compute_g2()
     f_s(b) = struc_fac(b.particles, b.l, k_range, bin_size)
     threadarr = missing
@@ -13,7 +39,7 @@ function optimize(my_params; pot, large_r_grid = missing, dim, n, ρ, bin_size, 
         println("round " * string(round))
         #do the simulation
         boxarr, threadarr = simu_boxes(pot, my_params, dim, n, ρ, bin_size, r_range, large_r_grid, threadarr; 
-            n_boxes = n_boxes, configs_per_box = configs_per_box, show_pb = show_pb)
+            n_threads = n_threads, configs_per_box = configs_per_box, show_pb = show_pb)
         n_configs = length(boxarr)
         weights_uniform = ones(n_configs)/n_configs
         #compute direct space pair statistics
@@ -52,5 +78,5 @@ function optimize(my_params; pot, large_r_grid = missing, dim, n, ρ, bin_size, 
         #start next round
         round += 1
     end
-    return current_Ψ < Ψ_tol
+    return current_Ψ < Ψ_tol, my_params
 end
