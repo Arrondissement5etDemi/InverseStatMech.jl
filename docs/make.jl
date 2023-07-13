@@ -10,5 +10,5 @@ makedocs(
                 "Home" => "index.md"
                ])
 deploydocs(;
-    repo="github.com/Arrondissement5etDemi/Spec2Struc.jl.git"
+    repo="github.com/Arrondissement5etDemi/Spec2Struc.jl"
 )
