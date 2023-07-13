@@ -13,7 +13,7 @@ using Test
     targ_g2(r) = 1 - 4*besselj(1, kF*r)^2/(kF*r)^2
     pot(r, params) = -params[1]*exp(-(r/params[2])^2)*log(r) + √π/(2*r)*(1 - exp(-(r/params[3])^2))
     params_vec = [2.0, 1.0, 1.0] #[2.099144746573296, 0.666655413783426, 0.4739706702894683]
-    @test Spec2Struc.optimize(params_vec;
+    @test Spec2Struc.optim_parametrized_pot(params_vec;
         pot = pot,
         dim = 2,
         n = 600,
@@ -25,10 +25,10 @@ using Test
         targ_s = targ_s,
         g2_weight_range = 2,
         s_weight_range = 4,
-        n_boxes = 15,
+        n_threads = 15,
         configs_per_box = 5,
         Ψ_tol = 0.005,
         show_pb = true,
         test = true
-    )
+       )[1]
 end
