@@ -4,17 +4,12 @@ min_symm(x, l) = min(x, l - x)
 dist_pbc(parti1, parti2, l) = norm(min_symm.(abs.(parti1 - parti2), l)) #assumes square box
 surface_area_sph(dim, r) =  2*pi^(dim/2)/gamma(dim/2)*r^(dim - 1)
 volume_sph(dim, r) = π^(dim/2)/gamma(dim/2 + 1)*r^dim
-
-min_symm(x, l) = min(x, l - x)
-
 gaussian(x) = exp(-x^2)
 
 lj(r, params) = params[1]/r^12 - params[2]/r^6
 
 
 triangle_func(x, x0, α) = max(0, 1 - abs(x - x0)/α)/α
-
-dropcol(M::AbstractMatrix, j) = M[:, deleteat!(collect(axes(M, 2)), j)]
 
 function grad_descent(func, params, a = 0.1, tol = 10^-4)
     val = func(params)
@@ -172,11 +167,6 @@ function parse_func(filename, range)
     x_vec = data[:, 1]
     f_vec = data[:, 2]
     return x_vec, f_vec
-end
-
-function pretty_print(array)
-    show(IOContext(stdout, :compact=>false), "text/plain", array)
-    println()
 end
 
 function bfgs_2(f, params, delta, stepsize, other_args_for_f...)
