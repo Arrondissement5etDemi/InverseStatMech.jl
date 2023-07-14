@@ -2,33 +2,41 @@ using ForwardDiff
 include("box.jl")
 
 """
-    optim_parametrized_pot(my_params; <keyword arguments>)
+    optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; <keyword arguments>)
 
-Optimize the parameters of a parametrized potential, starting with the initial guesses my_params
+Optimize the parameters a parametrized potential `pot`, starting with the initial guess parameters `my_params`, for a many-body system of dimension `dim`
+and number density `ρ`, such that the equibrated state under the potential has the targeted pair correlation function `targ_g2` and the targeted 
+structure factor `targ_s`
 
 # Arguments
 
+- `my_params`: initial guess parameters
 - `pot`: the functional form of the potential
-- `large_r_grid = missing`: ewald summation to treat very long-ranged interactions
-- `dim`: dimension of the system
-- `n`: number of particles
+- `dim`: dimension of the syste
 - `ρ`: number density
-- `bin_size`: bin size for the pair correlation function g_2
-- `r_range`: the range of r in direct space to compute the pair correlation function g_2(r)
-- `k_range`: the range of k in fourier space to compute the structure factor S(k)
 - `targ_g2`: target pair correlation function
-- `g2_weight_range`: range parameter of the weight function for g_2: w_g2(r) = exp(-(r/g2_weight_range)^2)
 - `targ_s`: target structure factor
-- `s_weight_range`: range parametrer of the weight function for S: w_s(k) = exp(-(k/g2_weight_range)^2)
-- `n_threads`: number of threads used for parallel computation of the simulation
-- `configs_per_box`: number of configurations to generate in each thread
-- `Ψ_tol`: stopping criterion for the error functional Ψ (distance between target and optimized pair statistics)
+
+# Keyword Arguments
+
+- `large_r_grid = missing`: ewald summation to treat very long-ranged interactions
+- `n = 600`: number of particles
+- `bin_size = 0.05`: bin size for the pair correlation function ``g_2(r)``
+- `r_range = 10`: the range of r in direct space to compute the pair correlation function ``g_2(r)``
+- `k_range = 20`: the range of k in fourier space to compute the structure factor ``S(k)``
+- `g2_weight_range = 2`: range parameter of the weight function for ``g_2(r)``: w_g2(r) = exp(-(r/g2_weight_range)^2)
+- `s_weight_range = 4`: range parametrer of the weight function for S: ``w_s(k)`` = exp(-(k/s_weight_range)^2)
+- `n_threads = 15`: number of threads used for parallel computation of the simulation
+- `configs_per_box = 5`: number of configurations to generate in each thread
+- `Ψ_tol = 0.005`: stopping criterion for the error functional Ψ (distance between target and optimized pair statistics)
 - `show_pb = true`: show progress bar
 - `test = false`: whether we are testing the package
+
 """
-function optim_parametrized_pot(my_params; 
-        pot, large_r_grid = missing, dim, n, ρ, bin_size, r_range, k_range, targ_g2, g2_weight_range, targ_s, s_weight_range, 
-        n_threads, configs_per_box, Ψ_tol, show_pb = true, test = false)
+function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
+        large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 
+        g2_weight_range = 2, s_weight_range = 4,
+        n_threads = 15, configs_per_box = 10, Ψ_tol = 0.005, show_pb = true, test = false)
     f_g2(b) = b.compute_g2()
     f_s(b) = struc_fac(b.particles, b.l, k_range, bin_size)
     threadarr = missing
