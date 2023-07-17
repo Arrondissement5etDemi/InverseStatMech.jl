@@ -2,37 +2,66 @@ using ForwardDiff
 include("box.jl")
 
 """
-    optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; <keyword arguments>)
+optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
+        large_r_grid = missing, n::Int = 600, bin_size::Float64 = 0.05, r_range::Float64 = 10, k_range::Float64 = 10,
+        g2_weight_range::Float64 = 2, s_weight_range::Float64 = 4, 
+        n_threads::Int = 15, configs_per_box::Int = 10, Ψ_tol::Float64 = 0.005, show_pb::Bool = true, test::Bool = false)
 
-Optimize the parameters a parametrized potential `pot`, starting with the initial guess parameters `my_params`, for a many-body system of dimension `dim`
-and number density `ρ`, such that the equibrated state under the potential has the targeted pair correlation function `targ_g2` and the targeted 
-structure factor `targ_s`
+Using the Torquato-Wang algorithm to perform iterative optimization of potential parameters to match target pair correlation function and structure factor.
 
-# Arguments
+## Arguments
+- `my_params`: Vector of initial potential parameters.
+- `pot`: Potential function that calculates the interaction potential between particles.
+- `dim::Int`: Dimension of the system.
+- `ρ::Float64`: Density of the system.
+- `targ_g2::Function`: Function representing the target pair correlation function. Accepts a distance value `r` and returns the target g2 value at that distance.
+- `targ_s::Function`: Function representing the target structure factor. Accepts a wave vector `k` and returns the target S value at that wave vector.
 
-- `my_params`: initial guess parameters
-- `pot`: the functional form of the potential
-- `dim`: dimension of the syste
-- `ρ`: number density
-- `targ_g2`: target pair correlation function
-- `targ_s`: target structure factor
+## Keyword Arguments
+- `large_r_grid::Missing`: Large-r grid for computation of long-ranged potentials. Default value is `missing`.
+- `n::Int`: Number of boxes for simulation. Default value is `600`.
+- `bin_size::Float64`: Size of the bin for pair correlation function and structure factor calculations. Default value is `0.05`.
+- `r_range::Float64`: Range of r values for pair correlation function calculation. Default value is `10`.
+- `k_range::Float64`: Range of k values for structure factor calculation. Default value is `10`.
+- `g2_weight_range::Float64`: Weight range for pair correlation function in the objective function. Default value is `2`.
+- `s_weight_range::Float64`: Weight range for structure factor in the objective function. Default value is `4`.
+- `n_threads::Int`: Number of threads for parallel computation. Default value is `15`.
+- `configs_per_box::Int`: Number of configurations per box for simulation. Default value is `10`.
+- `Ψ_tol::Float64`: Tolerance for convergence of the objective function. Default value is `0.005`.
+- `show_pb::Bool`: Boolean indicating whether to display a progress bar during simulation. Default value is `true`.
+- `test::Bool`: Boolean flag to indicate whether this is a test run and return a boolean indicating convergence. Default value is `false`.
 
-# Keyword Arguments
+## Returns
+- If `test` is true, returns `true` if convergence is achieved, `false` otherwise.
+- If `test` is false, returns the optimized potential parameters.
 
-- `large_r_grid = missing`: ewald summation to treat very long-ranged interactions
-- `n = 600`: number of particles
-- `bin_size = 0.05`: bin size for the pair correlation function ``g_2(r)``
-- `r_range = 10`: the range of r in direct space to compute the pair correlation function ``g_2(r)``
-- `k_range = 20`: the range of k in fourier space to compute the structure factor ``S(k)``
-- `g2_weight_range = 2`: range parameter of the weight function for ``g_2(r)``: w_g2(r) = exp(-(r/g2_weight_range)^2)
-- `s_weight_range = 4`: range parametrer of the weight function for S: ``w_s(k)`` = exp(-(k/s_weight_range)^2)
-- `n_threads = 15`: number of threads used for parallel computation of the simulation
-- `configs_per_box = 5`: number of configurations to generate in each thread
-- `Ψ_tol = 0.005`: stopping criterion for the error functional Ψ (distance between target and optimized pair statistics)
-- `show_pb = true`: show progress bar
-- `test = false`: whether we are testing the package
+## Example
+
+```julia
+using Spec2Struc
+
+# Define the potential function
+function pot(r, params)
+    return params[1] * exp(-r^2 / (2 * params[2]^2))
+end
+
+# Define the target pair correlation function
+targ_g2(r) = 1
+
+# Define the target structure factor
+targ_s(k) = 1
+
+# Set initial potential parameters
+initial_params = [1.0, 0.5]
+
+# Perform the optimization
+optimized_params = optim_parametrized_pot(initial_params, pot, 3, 1.0, targ_g2, targ_s)
+
+# Print the optimized parameters
+println("Optimized parameters: ", optimized_params)
 
 """
+
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 
         g2_weight_range = 2, s_weight_range = 4,
@@ -86,5 +115,9 @@ function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s;
         #start next round
         round += 1
     end
-    return current_Ψ < Ψ_tol, my_params
+    if test
+        return current_Ψ < Ψ_tol
+    else
+        return my_params
+    end
 end
