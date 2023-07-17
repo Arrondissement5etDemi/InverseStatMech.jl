@@ -11,7 +11,6 @@
 ## Function Documentation
 
 ```@docs
-
 optim_parametrized_pot
-
+reverse_mc
 ```

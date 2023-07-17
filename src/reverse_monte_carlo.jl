@@ -42,7 +42,6 @@ The generated equilibrium classical configuration is returned as a `Box` object 
 box = Spec2Struc.reverse_mc(2, 100, 0.5, r -> 1 - exp(π*r^2))
 
 """
-
 function reverse_mc(dim, n, ρ, g2_targ; 
         initial_box = missing, bin_size = 0.05, range = 5, sweeps = 100, displace = 0.1, t_i = 1, t_f = 0.001, cooling_rate = 0.98, test = false)
     if ismissing(initial_box)

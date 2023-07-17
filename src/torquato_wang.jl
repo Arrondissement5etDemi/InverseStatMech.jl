@@ -35,33 +35,7 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
 - If `test` is true, returns `true` if convergence is achieved, `false` otherwise.
 - If `test` is false, returns the optimized potential parameters.
 
-## Example
-
-```julia
-using Spec2Struc
-
-# Define the potential function
-function pot(r, params)
-    return params[1] * exp(-r^2 / (2 * params[2]^2))
-end
-
-# Define the target pair correlation function
-targ_g2(r) = 1
-
-# Define the target structure factor
-targ_s(k) = 1
-
-# Set initial potential parameters
-initial_params = [1.0, 0.5]
-
-# Perform the optimization
-optimized_params = optim_parametrized_pot(initial_params, pot, 3, 1.0, targ_g2, targ_s)
-
-# Print the optimized parameters
-println("Optimized parameters: ", optimized_params)
-
 """
-
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 
         g2_weight_range = 2, s_weight_range = 4,
