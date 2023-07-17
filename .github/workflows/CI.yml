@@ -20,6 +20,8 @@ jobs:
         version:
           - '1.7'
           - 'nightly'
+        threads:
+          15
         os:
           - ubuntu-latest
         arch:
