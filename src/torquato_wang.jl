@@ -47,7 +47,7 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
     targ_s(r) = 1
 
     #optimize the parameters
-    Spec2Struc.optim_parametrized_pot(my_params, pot, 2, 1, targ_g2, targ_s)
+    InvStatMech.optim_parametrized_pot(my_params, pot, 2, 1, targ_g2, targ_s)
 """
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 

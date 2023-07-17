@@ -28,7 +28,7 @@ Reverse Monte Carlo algorithm to generate equilibrium configurations that yield 
 
 # Example
 
-    box = Spec2Struc.reverse_mc(2, 100, 0.5, r -> 1 - exp(π*r^2))
+    box = InvStatMech.reverse_mc(2, 100, 0.5, r -> 1 - exp(π*r^2))
 
 """
 function reverse_mc(dim, n, ρ, g2_targ; 

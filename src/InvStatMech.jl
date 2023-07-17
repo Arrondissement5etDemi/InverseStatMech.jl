@@ -1,4 +1,4 @@
-module Spec2Struc
+module InvStatMech
 
 # Write your package code here.
 export(reverse_mc)
