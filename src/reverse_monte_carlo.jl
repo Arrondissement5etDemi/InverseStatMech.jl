@@ -3,7 +3,7 @@ include("box.jl")
 """
     reverse_mc(dim, n, ρ, g2_targ; initial_box = missing, bin_size = 0.05, range = 5, sweeps = 100, displace = 0.1, t_i = 1, t_f = 0.001, cooling_rate = 0.98)
 
-Reverse Monte Carlo algorithm to generate equilibrium classical configurations that mimic the pair statistics of free and interacting Fermi gases.
+Reverse Monte Carlo algorithm to generate equilibrium configurations that yield a target pair correlation function ``g_2(r)``.
 
 # Arguments
 
@@ -25,16 +25,6 @@ Reverse Monte Carlo algorithm to generate equilibrium classical configurations t
 
 # Returns
 - `b::Box`: Generated equilibrium classical configuration box. Use `b.particles'` to get the particle positions.
-
-# Description
-
-The `reverse_mc` function uses the Reverse Monte Carlo algorithm to generate equilibrium classical configurations that closely match the pair statistics (pair correlation function) of free and interacting Fermi gases. It iteratively adjusts the particle positions to match the desired pair correlation function, starting from an initial configuration or a random box.
-
-The algorithm performs Monte Carlo sweeps where each particle is randomly moved within a specified displacement limit. The acceptance or rejection of each move is determined based on the energy change (given by the difference in the pair correlation function) and the current temperature. The temperature is gradually reduced during the sweeps using a cooling rate.
-
-The `g2_targ` argument is the target pair correlation function, specified as a Julia function `g2_targ(r)` that takes the distance `r` as input and returns the desired value of the pair correlation function.
-
-The generated equilibrium classical configuration is returned as a `Box` object containing the particle positions.
 
 # Example
 

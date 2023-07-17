@@ -10,14 +10,14 @@ include("box.jl")
 Using the Torquato-Wang algorithm to perform iterative optimization of potential parameters to match target pair correlation function and structure factor.
 
 ## Arguments
-- `my_params`: Vector of initial potential parameters.
-- `pot`: Potential function that calculates the interaction potential between particles.
+- `my_params::Vector{Float64}`: Vector of initial potential parameters.
+- `pot::Function`: Potential function that calculates the interaction potential between particles.
 - `dim::Int`: Dimension of the system.
 - `ρ::Float64`: Density of the system.
 - `targ_g2::Function`: Function representing the target pair correlation function. Accepts a distance value `r` and returns the target g2 value at that distance.
 - `targ_s::Function`: Function representing the target structure factor. Accepts a wave vector `k` and returns the target S value at that wave vector.
 
-## Keyword Arguments
+## Keyword Arguments (all are optional)
 - `large_r_grid::Missing`: Large-r grid for computation of long-ranged potentials. Default value is `missing`.
 - `n::Int`: Number of boxes for simulation. Default value is `600`.
 - `bin_size::Float64`: Size of the bin for pair correlation function and structure factor calculations. Default value is `0.05`.
@@ -35,6 +35,12 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
 - If `test` is true, returns `true` if convergence is achieved, `false` otherwise.
 - If `test` is false, returns the optimized potential parameters.
 
+## Example
+    pot(r, params) = params[1]*exp(-r^2)
+    my_params = [1.0] #write 1.0 instead of 1 to indicate that this is Float64
+    targ_g2(r) = 1 
+    targ_s(r) = 1
+    Spec2Struc.optim_parametrized_pot(my_params, pot, 2, 1, targ_g2, targ_s)
 """
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 
