@@ -36,10 +36,17 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
 - If `test` is false, returns the optimized potential parameters.
 
 ## Example
-    pot(r, params) = params[1]*exp(-r^2)
-    my_params = [1.0] #write 1.0 instead of 1 to indicate that this is Float64
+    #form of the pair potential
+    pot(r, params) = params[1]*exp(-(r/params[2])^2)
+    
+    #initial guess parameters
+    my_params = [1.0, 2.0] #write 1.0 instead of 1 to indicate that this is Float64
+    
+    #target pair correlation function and structure factor
     targ_g2(r) = 1 
     targ_s(r) = 1
+
+    #optimize the parameters
     Spec2Struc.optim_parametrized_pot(my_params, pot, 2, 1, targ_g2, targ_s)
 """
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
