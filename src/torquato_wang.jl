@@ -2,7 +2,7 @@ using ForwardDiff
 include("box.jl")
 
 """
-optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
+    optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n::Int = 600, bin_size::Float64 = 0.05, r_range::Float64 = 10, k_range::Float64 = 10,
         g2_weight_range::Float64 = 2, s_weight_range::Float64 = 4, 
         n_threads::Int = 15, configs_per_box::Int = 10, Ψ_tol::Float64 = 0.005, show_pb::Bool = true, test::Bool = false)
