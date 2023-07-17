@@ -20,6 +20,10 @@ ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
 
 [compat]
 ProgressMeter = "1"
+IterTools = "1"
+SpecialFunctions = "2"
+Plots = "1"
+ForwardDiff = "0.10"
 julia = "1.7"
 
 [extras]
