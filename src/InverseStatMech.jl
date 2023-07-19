@@ -1,4 +1,4 @@
-module InvStatMech
+module InverseStatMech
 
 # Write your package code here.
 export(reverse_mc)

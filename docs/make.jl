@@ -4,11 +4,11 @@ using InvStatMech
 using Documenter
 
 makedocs(
-         sitename = "InvStatMech.jl",
+         sitename = "InverseStatMech.jl",
          modules  = [InvStatMech],
          pages=[
                 "Home" => "index.md"
                ])
 deploydocs(;
-    repo="github.com/Arrondissement5etDemi/InvStatMech.jl",
+    repo="github.com/Arrondissement5etDemi/InverseStatMech.jl",
    )
