@@ -1,5 +1,4 @@
 using ForwardDiff
-include("box.jl")
 
 """
     optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 

@@ -13,5 +13,6 @@
 
 ```@docs
 optim_parametrized_pot
+iterative_boltzmann
 reverse_mc
 ```

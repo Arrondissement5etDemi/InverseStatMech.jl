@@ -23,3 +23,6 @@ end
     @test InverseStatMech.optim_parametrized_pot(params_vec, pot, 2, 1.0, targ_g2, targ_s; Ψ_tol = 0.01, test = true)
 end
 
+@testset "iterative boltzmann inversion" begin
+    @test InverseStatMech.iterative_boltzmann(r -> 0, 2, 1, r -> 1 - exp(-π*r^2); Ψ_tol = 0.4, test = true)
+end
