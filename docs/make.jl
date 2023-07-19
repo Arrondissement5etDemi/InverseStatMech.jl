@@ -1,11 +1,11 @@
 import Pkg; Pkg.add("Documenter")
 push!(LOAD_PATH,"../src/")
-using InvStatMech
+using InverseStatMech
 using Documenter
 
 makedocs(
          sitename = "InverseStatMech.jl",
-         modules  = [InvStatMech],
+         modules  = [InverseStatMech],
          pages=[
                 "Home" => "index.md"
                ])
