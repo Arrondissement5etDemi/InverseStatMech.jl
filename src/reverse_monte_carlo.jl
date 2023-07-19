@@ -1,3 +1,5 @@
+include("box.jl")
+
 """
     reverse_mc(dim, n, ρ, g2_targ; initial_box = missing, bin_size = 0.05, range = 5, sweeps = 100, displace = 0.1, t_i = 1, t_f = 0.001, cooling_rate = 0.98)
 
