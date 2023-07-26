@@ -1,5 +1,5 @@
 using ForwardDiff, Interpolations
-include("box.jl")
+#include("box.jl")
 """
     iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1; n = 500, bin_size = 0.05, r_range = 10)
 

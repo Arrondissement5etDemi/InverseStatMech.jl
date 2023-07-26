@@ -1,5 +1,4 @@
 using LinearAlgebra, Plots, IterTools, Distributed, SharedArrays, DelimitedFiles, ProgressMeter, ThreadsX
-include("helper_funcs.jl")
 
 mutable struct Box
     ###fields below###
