@@ -1,5 +1,5 @@
 """
-    reverse_mc(dim, n, ρ, g2_targ; initial_box = missing, bin_size = 0.05, range = 5, sweeps = 100, displace = 0.1, t_i = 1, t_f = 0.001, cooling_rate = 0.98)
+    reverse_mc(dim::Int, n::Int, ρ::Float64, g2_targ::Function; initial_box = missing, bin_size = 0.05, range = 5, sweeps = 100, displace = 0.1, t_i = 1, t_f = 0.001, cooling_rate = 0.98)
 
 Reverse Monte Carlo algorithm to generate equilibrium configurations that yield a target pair correlation function ``g_2(r)``.
 
