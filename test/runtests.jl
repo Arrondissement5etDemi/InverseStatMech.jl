@@ -1,6 +1,22 @@
 using InverseStatMech, SpecialFunctions
 using Test
 
+@testset "ornstein zernike" begin
+    kF = 2*√π
+    targ_g2(r) = 1 - 4*besselj(1, kF*r)^2/(kF*r)^2
+    function targ_s(k)
+        if k ≤ 2kF
+            return 2*(asin(k/(2kF)) + (k/(2kF))*√(1 - (k/(2kF))^2))/π
+        else
+            return 1
+        end
+    end
+    @test InverseStatMech.ornstein_zernike_v(2, 1, targ_g2, targ_s, "PMF")(0.5) > 0
+    @test InverseStatMech.ornstein_zernike_v(2, 1, targ_g2, targ_s, "MFA")(0.5) > 0
+    @test InverseStatMech.ornstein_zernike_v(2, 1, targ_g2, targ_s, "HNC")(0.5) > 0
+    @test InverseStatMech.ornstein_zernike_v(2, 1, targ_g2, targ_s, "PY")(0.5) > 0
+end
+
 @testset "reverse_monte_carlo" begin
     kF = 2*√π
     targ_g2(r) = 1 - 4*besselj(1, kF*r)^2/(kF*r)^2
