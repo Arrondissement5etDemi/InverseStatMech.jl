@@ -1,17 +1,17 @@
 using ForwardDiff, Interpolations
 #include("box.jl")
 """
-    iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1; n = 500, bin_size = 0.05, r_range = 10)
+    iterative_boltzmann(pot::Function, dim::Int, ρ::Float64, targ_g2::Function, α = 1; n = 500, bin_size = 0.05, r_range = 10)::Function
 
 Iteratively updates the pair potential `pot` using the Boltzmann inversion method to match the target pair correlation function `targ_g2`.
 
 # Arguments
 
-- `pot`: The initial pair potential function to be optimized.
-- `dim`: The dimensionality of the system.
-- `ρ`: The number density of particles in the system.
-- `targ_g2`: The target pair correlation function `g_2(r)`.
-- `α`: The update parameter for the potential. (Optional, default: 1)
+- `pot::Function`: The initial pair potential function to be optimized.
+- `dim::Int`: The dimensionality of the system.
+- `ρ::Float64`: The number density of particles in the system.
+- `targ_g2::Function`: The target pair correlation function `g_2(r)`.
+- `α::Float64`: The update parameter for the potential. (Optional, default: 1)
 
 # Keyword Arguments (All are optional)
 
