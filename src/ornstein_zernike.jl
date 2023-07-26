@@ -1,7 +1,7 @@
 using Interpolations
 
 """
-    function ornstein_zernike_v(dim::Int, ρ::Real, g2::Function, s::Function, closure::String, r_vec::AbstractVector = 0.025:0.05:10,
+    ornstein_zernike_v(dim::Int, ρ::Float64, g2::Function, s::Function, closure::String, r_vec::AbstractVector = 0.025:0.05:10,
     k_vec::AbstractVector = 0.025:0.05:20) :: Interpolations.GriddedInterpolation
 
 Compute the Ornstein-Zernike potential (``βv(r)``) using the Ornstein-Zernike equation.
