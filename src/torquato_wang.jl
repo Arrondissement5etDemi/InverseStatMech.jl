@@ -4,7 +4,7 @@ using ForwardDiff
     optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n::Int = 600, bin_size::Float64 = 0.05, r_range::Float64 = 10, k_range::Float64 = 10,
         g2_weight_range::Float64 = 2, s_weight_range::Float64 = 4, 
-        n_threads::Int = 15, configs_per_box::Int = 10, Ψ_tol::Float64 = 0.005, show_pb::Bool = true, test::Bool = false)
+        n_threads::Int = 15, configs_per_thread::Int = 10, displace = 0.2, Ψ_tol::Float64 = 0.005, show_pb::Bool = true, test::Bool = false)
 
 Using the Torquato-Wang algorithm to perform iterative optimization of potential parameters to match target pair correlation function and structure factor.
 
@@ -25,7 +25,8 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
 - `g2_weight_range::Float64`: Weight range for pair correlation function in the objective function. Default value is `2`.
 - `s_weight_range::Float64`: Weight range for structure factor in the objective function. Default value is `4`.
 - `n_threads::Int`: Number of threads for parallel computation. Default value is `15`.
-- `configs_per_box::Int`: Number of configurations per box for simulation. Default value is `10`.
+- `configs_per_thread::Int`: Number of configurations to generate per thread for simulation. Default value is `10`.
+- `displace::Float64`: Kick size in the metropolis Monte Carlo simulation. Default value is `0.2`.
 - `Ψ_tol::Float64`: Tolerance for convergence of the objective function. Default value is `0.005`.
 - `show_pb::Bool`: Boolean indicating whether to display a progress bar during simulation. Default value is `true`.
 - `test::Bool`: Boolean flag to indicate whether this is a test run and return a boolean indicating convergence. Default value is `false`.
@@ -51,7 +52,7 @@ Using the Torquato-Wang algorithm to perform iterative optimization of potential
 function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s; 
         large_r_grid = missing, n = 600, bin_size = 0.05, r_range = 10, k_range = 10, 
         g2_weight_range = 2, s_weight_range = 4,
-        n_threads = 15, configs_per_box = 10, Ψ_tol = 0.005, show_pb = true, test = false)
+        n_threads = 15, configs_per_thread = 10, displace = 0.2, Ψ_tol = 0.005, show_pb = true, test = false)
     f_g2(b) = b.compute_g2()
     f_s(b) = struc_fac(b.particles, b.l, k_range, bin_size)
     threadarr = missing
@@ -62,7 +63,7 @@ function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s;
         println("round " * string(round))
         #do the simulation
         boxarr, threadarr = simu_boxes(pot, my_params, dim, n, ρ, bin_size, r_range, large_r_grid, threadarr; 
-            n_threads = n_threads, configs_per_box = configs_per_box, show_pb = show_pb)
+            n_threads = n_threads, configs_per_thread = configs_per_thread, displace = displace, show_pb = show_pb)
         n_configs = length(boxarr)
         weights_uniform = ones(n_configs)/n_configs
         #compute direct space pair statistics
@@ -92,6 +93,7 @@ function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s;
              sum([(s_new[i, 2] - targ_s_data[i, 2])^2*exp(-(k_vec[i]/s_weight_range)^2)*surface_area_sph(dim, k_vec[i]) for i in eachindex(k_vec)]/((2*pi)^dim*ρ)))
         end
         #optimize the potential parameters
+        println("")
         opt = Optim.optimize(Ψ, my_params; method = BFGS(), autodiff = :forward, show_trace = true, iterations = 60)
         my_params = Optim.minimizer(opt)
         println(my_params)

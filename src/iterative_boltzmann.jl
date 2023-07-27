@@ -18,7 +18,8 @@ Iteratively updates the pair potential `pot` using the Boltzmann inversion metho
 - `bin_size`: Bin size for the histograms of pair correlation functions. (default: 0.05)
 - `r_range`: Maximum distance to compute the pair correlation function. (default: 10)
 - `n_threads`: Number of threads to use for parallel computation. (default: 15)
-- `configs_per_box`: Number of configurations to generate for each thread. (default: 10)
+- `configs_per_thread`: Number of configurations to generate for each thread. (default: 10)
+- `displace`: Kick size in the metropolis Monte Carlo simulation. Default value is 0.2.
 - `Ψ_tol`: Tolerance for stopping criterion. (default: 0.005)
 - `show_pb`: Whether to show the progress bar during the simulation. (default: true)
 - `test`: Whether to run the function in test mode. (default: false)
@@ -29,11 +30,11 @@ Iteratively updates the pair potential `pot` using the Boltzmann inversion metho
 - Otherwise, returns the optimized pair potential function.
 
 # Example
-    optimized_potential = iterative_boltzmann(r -> 0, 2, 1.0, r -> exp(-π*r^2))
+    optimized_potential = iterative_boltzmann(r -> 0, 2, 1.0, r -> 1 - exp(-π*r^2))
 """
 function iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1; 
         n = 500, bin_size = 0.05, r_range = 10, 
-        n_threads = 15, configs_per_box = 10, Ψ_tol = 0.005, show_pb = true, test = false)
+        n_threads = 15, configs_per_thread = 10, displace = 0.2, Ψ_tol = 0.005, show_pb = true, test = false)
     f_g2(b) = b.compute_g2()
     threadarr = missing
     current_Ψ = 100
@@ -43,7 +44,7 @@ function iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1;
         println("round " * string(round))
         #do the simulation
         boxarr, threadarr = simu_boxes((r, params) -> pot(r), [0], dim, n, ρ, bin_size, r_range, missing, threadarr; 
-            n_threads = n_threads, configs_per_box = configs_per_box, show_pb = show_pb)
+            n_threads = n_threads, configs_per_thread = configs_per_thread, show_pb = show_pb)
         n_configs = length(boxarr)
         weights_uniform = ones(n_configs)/n_configs
         #compute direct space pair statistics

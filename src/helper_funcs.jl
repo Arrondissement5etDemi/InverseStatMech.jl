@@ -1,4 +1,4 @@
-using LinearAlgebra, Optim, BenchmarkTools, SpecialFunctions
+using LinearAlgebra, Optim, BenchmarkTools, SpecialFunctions, Interpolations
 
 min_symm(x, l) = min(x, l - x)
 dist_pbc(parti1, parti2, l) = norm(min_symm.(abs.(parti1 - parti2), l)) #assumes square box
@@ -63,7 +63,7 @@ function struc_fac(particles, l, range, bin_size = 0.05)
     dim, n = size(particles)
     n_range = ceil(Int, range/k_min)
     raw = zeros(0, 2)
-    for i in Iterators.product(ntuple(i -> -n_range:n_range, dim)...)
+    for i in product(ntuple(i -> -n_range:n_range, dim)...)
         n_tilde = 0
         k_vec = collect(i)*k_min
         if k_vec ≠ zeros(dim) && k_vec[1] ≥ 0 && norm(k_vec) ≤ range
@@ -77,20 +77,18 @@ function struc_fac(particles, l, range, bin_size = 0.05)
     k_col = (k_min + bin_size/2):bin_size:(range + bin_size)
     n_bins = length(k_col)
     collector = [[] for _ = 1:n_bins]
-    result = zeros(n_bins, 2)
-    result[:, 1] = k_col
     for row in eachrow(raw)
         bin = max(1, ceil(Int, (row[1] - k_min)/bin_size))
         push!(collector[bin], row[2])
     end
+    binned_data = zeros(0, 2)
     for i = 1:n_bins
         if collector[i] ≠ []
-            result[i, 2] = mean(collector[i])
-        else
-            result[i, 2] = result[i - 1, 2]
+            binned_data = vcat(binned_data, [k_col[i], mean(collector[i])]')
         end
     end
-    return result
+    s_interpolated = Interpolations.linear_interpolation(binned_data[:, 1], binned_data[:, 2], extrapolation_bc = Line())
+    return hcat(k_col, s_interpolated.(k_col))
 end
 
 ```computes the magnetic structure factor of an unpolarized system in a cubic box```

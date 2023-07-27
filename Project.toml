@@ -1,7 +1,7 @@
 name = "InverseStatMech"
 uuid = "44c939e5-f9c7-478c-a795-a0678313fc8a"
 authors = ["Haina Wang"]
-version = "1.1.0"
+version = "1.1.1"
 
 [deps]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

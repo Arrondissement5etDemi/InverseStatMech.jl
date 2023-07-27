@@ -215,12 +215,13 @@ function equilibrate!(b::Box, pair_pot, pot_params, use_cl = true, large_r_grid 
 end
 
 function g2_boxes(boxarr)
-    f_g2(b) = b.compute_g2()
-    n_configs = length(boxarr)
-    weights_uniform = ones(n_configs)/n_configs
-    #compute direct space pair statistics
-    g2_arr = ThreadsX.map(f_g2, boxarr)
-    return reweighed_f(weights_uniform, g2_arr)
+    b1 = boxarr[1]
+    r_vec = b1.bin_size/2:b1.bin_size:b1.range
+    result = zeros(length(r_vec))
+    for box in boxarr
+        result += box.compute_g2()[:, 2]
+    end
+    return hcat(r_vec, result/length(boxarr))
 end
 
 function reweigh(boxarr, pot_old, pot_new, g2_arr; temperature = 1)
@@ -250,34 +251,36 @@ function reweighed_f(weights, f_data)
     return sum([f_data[i]*weights[i] for i in eachindex(f_data)])
 end
 
-function s_boxes(boxarr)
-    f_s(b) = b.compute_s()
-    n_configs = length(boxarr)
-    weights_uniform = ones(n_configs)/n_configs
-    s_arr = ThreadsX.map(f_s, boxarr)
-    return reweighed_f(weights_uniform, s_arr)
+function s_boxes(boxarr, k_range)
+    l = boxarr[1].l
+    result = struc_fac(boxarr[1].particles, l, k_range)
+    for i in 2:length(boxarr)
+        result[:, 2] += struc_fac(boxarr[i].particles, l, k_range)[:, 2]
+    end
+    result[:, 2] /= length(boxarr)
+    return result
 end
 
 ```obtain an ensemble of simulated boxes```
-function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_grid, thread_arr = missing; 
-        n_threads = 20, configs_per_thread = 5, displace = 0.2, show_pb)
-    box_arr = Vector{Box}(undef, n_threads*configs_per_thread)
-    if ismissing(thread_arr)
-        thread_arr = Vector{Box}(undef, n_threads)
+function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_grid, box_arr = missing; 
+        n_threads = 20, configs_per_box = 5, show_pb)
+    config_arr = Vector{Box}(undef, n_threads*configs_per_box)
+    if ismissing(box_arr)
+        box_arr = Vector{Box}(undef, n_threads)
         b = random_box(dim, n, ρ, bin_size, range)
-        pair_pot_faster = equilibrate!(b, pair_pot, pot_params, false, large_r_grid; sweeps = 600, displace = displace, show_pb = show_pb) #initial equilibration
-        for i in eachindex(thread_arr)
-            thread_arr[i] = deepcopy(b)
+        pair_pot_faster = equilibrate!(b, pair_pot, pot_params, false, large_r_grid; sweeps = 600, show_pb = show_pb) #initial equilibration
+        for i in eachindex(box_arr)
+            box_arr[i] = deepcopy(b)
         end
     else
-        pair_pot_faster = equilibrate!(thread_arr[1], pair_pot, pot_params, false, large_r_grid; sweeps = 1, displace = displace, show_pb = show_pb)
+        pair_pot_faster = equilibrate!(box_arr[1], pair_pot, pot_params, false, large_r_grid; sweeps = 1, show_pb = show_pb)
     end
     if show_pb
-        p = Progress(n_threads*configs_per_thread)
+        p = Progress(n_threads*configs_per_box)
         @sync for i in 1:n_threads
-            Threads.@spawn for j = 1:configs_per_thread
-                equilibrate!(thread_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; displace = displace, sweeps = 50)
-                box_arr[(i - 1)*configs_per_thread + j] = deepcopy(thread_arr[i])
+            Threads.@spawn for j = 1:configs_per_box
+                equilibrate!(box_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; sweeps = 50)
+                config_arr[(i - 1)*configs_per_box + j] = deepcopy(box_arr[i])
                 next!(p)
                 flush(stdout)
             end
@@ -285,13 +288,13 @@ function simu_boxes(pair_pot, pot_params, dim, n, ρ, bin_size, range, large_r_g
         finish!(p)
     else
         @sync for i in 1:n_threads
-            Threads.@spawn for j = 1:configs_per_thread
-                equilibrate!(thread_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; displace = displace, sweeps = 50)
-                box_arr[(i - 1)*configs_per_thread + j] = deepcopy(thread_arr[i])
+            Threads.@spawn for j = 1:configs_per_box
+                equilibrate!(box_arr[i], pair_pot, pot_params, false, large_r_grid, pair_pot_faster; sweeps = 50)
+                config_arr[(i - 1)*configs_per_box + j] = deepcopy(box_arr[i])
                 print(".")
                 flush(stdout)
             end
         end
     end
-    return box_arr, thread_arr
+    return config_arr, box_arr
 end
