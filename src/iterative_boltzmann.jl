@@ -9,18 +9,18 @@ Iteratively updates the pair potential `pot` using the Boltzmann inversion metho
 - `pot::Function`: The initial pair potential function to be optimized.
 - `dim::Int`: The dimensionality of the system.
 - `ρ::Float64`: The number density of particles in the system.
-- `targ_g2::Function`: The target pair correlation function `g_2(r)`.
+- `targ_g2::Function`: The target pair correlation function ``g_2(r)``.
 - `α::Float64`: The update parameter for the potential. (Optional, default: 1)
 
 # Keyword Arguments (All are optional)
 
-- `n`: Number of configurations for each box in the simulation. (default: 500)
+- `n`: Number of particles for each box in the simulation. (default: 500)
 - `bin_size`: Bin size for the histograms of pair correlation functions. (default: 0.05)
 - `r_range`: Maximum distance to compute the pair correlation function. (default: 10)
 - `n_threads`: Number of threads to use for parallel computation. (default: 15)
 - `configs_per_thread`: Number of configurations to generate for each thread. (default: 10)
-- `displace`: Kick size in the metropolis Monte Carlo simulation. Default value is 0.2.
-- `Ψ_tol`: Tolerance for stopping criterion. (default: 0.005)
+- `displace`: Kick size in the metropolis Monte Carlo simulation. (default: 0.2).
+- `Ψ_tol`: Tolerance of the distance metric between the target and simulated ``g_2`` for stopping criterion. (default: 0.005)
 - `show_pb`: Whether to show the progress bar during the simulation. (default: true)
 - `test`: Whether to run the function in test mode. (default: false)
 

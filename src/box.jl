@@ -250,8 +250,8 @@ function reweighed_f(weights, f_data)
     return sum([f_data[i]*weights[i] for i in eachindex(f_data)])
 end
 
-function s_boxes(boxarr)
-    f_s(b) = b.compute_s()
+function s_boxes(boxarr, k_range = 20, k_bin_size = 0.05)
+    f_s(b) = b.compute_s(k_range, k_bin_size)
     n_configs = length(boxarr)
     weights_uniform = ones(n_configs)/n_configs
     s_arr = ThreadsX.map(f_s, boxarr)
