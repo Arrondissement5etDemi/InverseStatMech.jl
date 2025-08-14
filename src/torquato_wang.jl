@@ -94,7 +94,7 @@ function optim_parametrized_pot(my_params, pot, dim, ρ, targ_g2, targ_s;
         end
         #optimize the potential parameters
         println("")
-        opt = Optim.optimize(Ψ, my_params; method = BFGS(), autodiff = :forward, show_trace = true, iterations = 60)
+        opt = Optim.optimize(Ψ, my_params; method = LBFGS(linesearch = BackTracking(order=2)), autodiff = :forward, show_trace = true, iterations = 60)
         my_params = Optim.minimizer(opt)
         println(my_params)
         current_Ψ = Optim.minimum(opt)
