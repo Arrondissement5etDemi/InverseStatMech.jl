@@ -63,12 +63,7 @@ function iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1;
         println("\nΨ: " * string(current_Ψ))
         flush(stdout)
         #update the potential
-        pot_data_new = zeros(0, 2)
-        for i in eachindex(r_vec)
-            if targ_g2_data[i]*g2[i] ≠ 0
-                pot_data_new = vcat(pot_data_new, [r_vec[i], pot_data[i] - α*log(targ_g2_data[i]/g2[i, 2])]')
-            end
-        end
+        pot_data_new = ibi_update(r_vec, pot_data, targ_g2_data, g2[:, 2], α)
         pot_interp = Interpolations.linear_interpolation(pot_data_new[:, 1], pot_data_new[:, 2], extrapolation_bc = Line())
         pot = r -> ifelse(r < r_range, pot_interp(r), pot_interp(r_range))
         #start next round
@@ -79,5 +74,18 @@ function iterative_boltzmann(pot, dim, ρ, targ_g2, α = 1;
     else
         return pot
     end
+end
+
+#one Iterative Boltzmann Inversion step, v_new(r) = v(r) - α*log(g2_targ(r)/g2(r));
+#bins where either the target or the simulated g2 vanishes are skipped, since the log is not finite there.
+#returns an m × 2 matrix whose columns are r and the updated potential.
+function ibi_update(r_vec, pot_data, targ_g2_data, g2_data, α)
+    pot_data_new = zeros(0, 2)
+    for i in eachindex(r_vec)
+        if targ_g2_data[i]*g2_data[i] ≠ 0
+            pot_data_new = vcat(pot_data_new, [r_vec[i], pot_data[i] - α*log(targ_g2_data[i]/g2_data[i])]')
+        end
+    end
+    return pot_data_new
 end
 

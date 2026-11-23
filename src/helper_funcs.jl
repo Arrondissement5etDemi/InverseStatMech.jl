@@ -1,4 +1,4 @@
-using LinearAlgebra, Optim, BenchmarkTools, SpecialFunctions, Interpolations
+using LinearAlgebra, Optim, SpecialFunctions, Interpolations, Statistics
 
 min_symm(x, l) = min(x, l - x)
 dist_pbc(parti1, parti2, l) = norm(min_symm.(abs.(parti1 - parti2), l)) #assumes square box
