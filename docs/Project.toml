@@ -1,0 +1,6 @@
+[deps]
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+InverseStatMech = "44c939e5-f9c7-478c-a795-a0678313fc8a"
+
+[compat]
+Documenter = "1"
